@@ -18,6 +18,18 @@ class AuthorFactory extends Factory
     {
         return [
             //
+            'id' => $this->faker->uuid(),
+            'name' => $this->faker->name(),
+            'phone_number' => $this->faker->phoneNumber(),
+            'email'=>$this->faker->unique()->safeEmail(),
+            'bio' => $this->faker->paragraph(),
+            'website' => $this->faker->url(),
+            'social_media' => json_encode([
+                'facebook' => $this->faker->url(),
+                'twitter' => $this->faker->url(),
+                'linkedin' => $this->faker->url(),
+            ]),
+            'profession' => $this->faker->jobTitle(),
         ];
     }
 }

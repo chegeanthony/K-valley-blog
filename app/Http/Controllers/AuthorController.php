@@ -11,23 +11,19 @@ class AuthorController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('id');
-
-        if (Auth::guard('author')->attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('author/dashboard');
+    
+        try {
+            if (Auth::guard('author')->attempt($credentials)) {
+                $request->session()->regenerate();
+                return response()->json(['message' => 'Login successful'], 200);
+            } else {
+                return response()->json(['error' => 'Invalid credentials'], 401);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return back()->withErrors([
-            'id' => 'The provided ID is incorrect.',
-        ]);
-    }    
-    public function dashboard()
-    {
-        $author = Auth::guard('author')->user();
-        $blogs = $author ? DB::table('blogs')->where('author_id', $author->id)->get() : collect();
-        return view('author.dashboard', compact('author', 'blogs'));
     }
-
+    
     public function updateProfile(Request $request)
     {
         $author = Auth::guard('author')->user();

@@ -18,7 +18,7 @@ class AuthorFactory extends Factory
     {
         return [
             //
-            'id' => $this->faker->uuid(),
+            'id' => $this->faker->unique()->randomNumber(),
             'name' => $this->faker->name(),
             'phone_number' => $this->faker->phoneNumber(),
             'email'=>$this->faker->unique()->safeEmail(),

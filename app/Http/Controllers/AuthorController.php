@@ -5,29 +5,33 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Author;
 
 class AuthorController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->only('id');
+        $authorId = $request->input('id');
 
-        if (Auth::guard('author')->attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('author/dashboard');
+        try {
+            // Retrieve the author by ID
+            $author = Author::find($authorId);
+
+            if ($author) {
+                // Log in the author without a password
+                Auth::login($author);
+                
+                // Regenerate the session
+                $request->session()->regenerate();
+
+                return response()->json(['message' => 'Login successful'], 200);
+            } else {
+                return response()->json(['error' => 'Invalid credentials'], 401);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return back()->withErrors([
-            'id' => 'The provided ID is incorrect.',
-        ]);
-    }    
-    public function dashboard()
-    {
-        $author = Auth::guard('author')->user();
-        $blogs = $author ? DB::table('blogs')->where('author_id', $author->id)->get() : collect();
-        return view('author.dashboard', compact('author', 'blogs'));
     }
-
     public function updateProfile(Request $request)
     {
         $author = Auth::guard('author')->user();

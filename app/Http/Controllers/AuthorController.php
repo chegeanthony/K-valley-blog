@@ -12,19 +12,14 @@ class AuthorController extends Controller
     public function login(Request $request)
     {
         $authorId = $request->input('id');
-
+        
         try {
-            // Retrieve the author by ID
             $author = Author::find($authorId);
-
+        
             if ($author) {
-                // Log in the author without a password
-                Auth::login($author);
-                
-                // Regenerate the session
+                Auth::guard('author')->login($author);
                 $request->session()->regenerate();
-
-                return response()->json(['message' => 'Login successful'], 200);
+                return redirect()->route('author.dashboard');
             } else {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
@@ -32,6 +27,8 @@ class AuthorController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+
     public function updateProfile(Request $request)
     {
         $author = Auth::guard('author')->user();
@@ -57,6 +54,28 @@ class AuthorController extends Controller
             return redirect()->route('author.dashboard')->with('status', 'Blog created successfully');
         }
         return back()->with('error', 'Unable to create blog');
+    }
+
+    // AuthorController.php
+    public function dashboard()
+    {
+        $author = Auth::guard('author')->user();
+
+        if (!$author) {
+            \Log::info('No authenticated author found.');
+            return redirect()->route('login')->withErrors(['message' => 'You must be logged in to access this page.']);
+        }
+
+        return view('author.dashboard', ['author' => $author]);
+    }
+
+
+    public function logout(Request $request)
+    {
+        Auth::guard('author')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login');
     }
 
     public function updateBlog(Request $request, $blogId)

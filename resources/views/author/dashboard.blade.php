@@ -18,7 +18,7 @@
     <button type="submit">Create Blog</button>
 </form>
 
-<h2>Your Blogs</h2>
+{{-- <h2>Your Blogs</h2>
 @foreach($blogs as $blog)
     <div>
         <h3>{{ $blog->title }}</h3>
@@ -32,7 +32,7 @@
         </form>
     </div>
 @endforeach
-
+ --}}
 <form method="POST" action="{{ route('author.logout') }}">
     @csrf
     <button type="submit">Logout</button>
